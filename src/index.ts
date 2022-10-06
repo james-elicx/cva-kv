@@ -32,22 +32,32 @@ type ConfigVariants<T extends ConfigSchema> = {
   [Variant in keyof T]?: StringToBoolean<keyof T[Variant]> | null;
 };
 
-type Config<T> = T extends ConfigSchema
+type VariantSetSchema<T extends ConfigSchema> = Record<
+  string,
+  ConfigVariants<T>
+>;
+
+type Config<T, S> = T extends ConfigSchema
   ? {
       variants?: T;
       defaultVariants?: ConfigVariants<T>;
       compoundVariants?: (T extends ConfigSchema
         ? ConfigVariants<T> & ClassProp
         : ClassProp)[];
+      variantSets?: S extends VariantSetSchema<T> ? S : never;
+      defaultVariantSet?: S extends VariantSetSchema<T> ? keyof S : never;
     }
   : never;
 
 type Props<T> = T extends ConfigSchema
-  ? ConfigVariants<T> & ClassProp
+  ? ConfigVariants<T> &
+      ClassProp & {
+        variant?: keyof VariantSetSchema<T>;
+      }
   : ClassProp;
 
 export const cva =
-  <T>(base?: ClassValue, config?: Config<T>) =>
+  <T, S>(base?: ClassValue, config?: Config<T, S>) =>
   (props?: Props<T>) => {
     const className = props?.class;
 
@@ -99,10 +109,35 @@ export const cva =
       [] as ClassValue[]
     );
 
+    const getVariantSetClassNames = (variant: keyof S | string | undefined) => {
+      const compoundedVariant = variant && config.variantSets?.[variant];
+
+      return compoundedVariant
+        ? Object.entries(compoundedVariant).map(([key, value]) => {
+            const variantProp = variants?.[key];
+
+            if (variantProp === null) return null;
+
+            const variantKey = booleanToString(value);
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return variants[key]![variantKey];
+          })
+        : [];
+    };
+
+    const defaultCompounded = config?.defaultVariantSet;
+    const variantProp = props && "variant" in props && props.variant;
+
+    const variantSetClassNames = getVariantSetClassNames(
+      variantProp || defaultCompounded
+    );
+
     return cx(
       base,
       getVariantClassNames,
       getCompoundVariantClassNames,
+      variantSetClassNames,
       className
     );
   };

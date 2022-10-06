@@ -851,4 +851,80 @@ describe("cva", () => {
       });
     });
   });
+
+  describe("variant sets", () => {
+    type BoxProps = CVA.VariantProps<typeof box>;
+    const box = cva(["box", "box-border"], {
+      variants: {
+        margin: { 0: "m-0", 2: "m-2", 4: "m-4", 8: "m-8" },
+        padding: { 0: "p-0", 2: "p-2", 4: "p-4", 8: "p-8" },
+      },
+      variantSets: {
+        primary: {
+          margin: 2,
+          padding: 2,
+        },
+        secondary: {
+          margin: 4,
+          padding: 8,
+        },
+        tertiary: {
+          margin: 0,
+          padding: 0,
+        },
+      },
+      defaultVariantSet: "primary",
+    });
+
+    type CardBaseProps = CVA.VariantProps<typeof cardBase>;
+    const cardBase = cva(
+      ["card", "border-solid", "border-slate-300", "rounded"],
+      {
+        variants: {
+          shadow: {
+            md: "drop-shadow-md",
+            lg: "drop-shadow-lg",
+            xl: "drop-shadow-xl",
+          },
+        },
+      }
+    );
+
+    interface CardProps extends BoxProps, CardBaseProps {}
+    const card = ({ margin, padding, shadow, variant }: CardProps = {}) =>
+      cx(box({ margin, padding, variant }), cardBase({ shadow }));
+
+    describe.each<[CardProps, string]>([
+      [
+        // @ts-expect-error
+        undefined,
+        "box box-border m-2 p-2 card border-solid border-slate-300 rounded",
+      ],
+      [{}, "box box-border m-2 p-2 card border-solid border-slate-300 rounded"],
+      [
+        { variant: "primary" },
+        "box box-border m-2 p-2 card border-solid border-slate-300 rounded",
+      ],
+      [
+        { variant: "secondary" },
+        "box box-border m-4 p-8 card border-solid border-slate-300 rounded",
+      ],
+      [
+        { variant: undefined },
+        "box box-border m-2 p-2 card border-solid border-slate-300 rounded",
+      ],
+      [
+        { shadow: "md" },
+        "box box-border m-2 p-2 card border-solid border-slate-300 rounded drop-shadow-md",
+      ],
+      [
+        { variant: "tertiary", shadow: "md" },
+        "box box-border m-0 p-0 card border-solid border-slate-300 rounded drop-shadow-md",
+      ],
+    ])("card(%o)", (options, expected) => {
+      test(`returns ${expected}`, () => {
+        expect(card(options)).toBe(expected);
+      });
+    });
+  });
 });

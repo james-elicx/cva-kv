@@ -1,15 +1,14 @@
 {
-  "name": "class-variance-authority",
-  "version": "0.2.3",
-  "description": "Class Variance Authority 🧬",
-  "author": "Joe Bell (https://joebell.co.uk)",
+  "name": "cva-kv",
+  "version": "0.3.0",
+  "description": "Class Variance Authority with Key -> Set of Variants",
+  "author": "James",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "typings": "dist/index.d.ts",
-  "funding": "https://joebell.co.uk",
-  "repository": "https://github.com/joe-bell/cva.git",
-  "bugs": "https://github.com/joe-bell/cva/issues",
-  "homepage": "https://github.com/joe-bell/cva#readme",
+  "repository": "https://github.com/moodiest/cva-kv.git",
+  "bugs": "https://github.com/moodiest/cva-kv/issues",
+  "homepage": "https://github.com/moodiest/cva-kv#readme",
   "keywords": [
     "css",
     "classes",
@@ -20,7 +19,8 @@
     "class-variance-authority",
     "Class Variance Authority",
     "stitches",
-    "vanilla-extract"
+    "vanilla-extract",
+    "cva-kv"
   ],
   "files": [
     "dist/*.js",
